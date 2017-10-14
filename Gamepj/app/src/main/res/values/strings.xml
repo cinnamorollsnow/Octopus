@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Game Project</string>
+    <string name="start">Start</string>
+    <string name="about">About</string>
+    <string name="highScore">High Score</string>
+    <string name="exit">Exit</string>
+    <string name="restart">Restart</string>
+    <string name="end_the_game">End The Game</string>
 </resources>
