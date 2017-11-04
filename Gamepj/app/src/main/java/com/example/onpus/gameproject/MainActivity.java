@@ -2,10 +2,9 @@ package com.example.onpus.gameproject;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 
@@ -32,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.start:
-                Intent intent = new Intent(this, Game.class);
+                Intent intent = new Intent(this, GameActivity.class);
                 startActivity(intent);
                 break;
             case R.id.about:

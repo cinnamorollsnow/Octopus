@@ -6,4 +6,15 @@
     <string name="exit">Exit</string>
     <string name="restart">Restart</string>
     <string name="end_the_game">End The Game</string>
+    <string name="hello">Hello World, SlidingPuzzleActivity!</string>
+
+    <dimen name="grid_spacing">5dp</dimen>
+    <dimen name="item_padding">5dp</dimen>
+    <dimen name="item_text_padding">5dp</dimen>
+    <dimen name="item_text_size">30dp</dimen>
+
+    <color name="item_background">#222</color>
+
+    <string name="congratulation">Congratulation!</string>
+    <string name="congratulation_msg">You solved the puzzle in %1$d moves and %2$.1f s.</string>
 </resources>
