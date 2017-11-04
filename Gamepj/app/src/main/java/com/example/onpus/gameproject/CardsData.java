@@ -3,12 +3,10 @@ package com.example.onpus.gameproject;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class PuzzleData {
-    /** The empty space, the buffer for moving items. */
+public class CardsData {
     private static final String EMPTY = "";
     /** List of (size * size) data, each being a string. */
     private final ArrayList<Card> dataList = new ArrayList<Card>();
-    /** Size of puzzle. */
     private int size;
     //all color
     private final String[] color = {"red", "yellow", "blue","green"};
@@ -17,18 +15,18 @@ public class PuzzleData {
     //current card
     public Card currentCard;
     
-    /** Returns the size of the puzzle. */
+    /** Returns number of cards. */
     public int getSize() {
         return size;
     }
 
-    /** Sets the size of the puzzle. */
-    public void genCards(int size) {
+    //generate 9 cards
+    public void genAllCards(int size) {
         this.size = size;
         resetDataList();
     }
 
-    /** Returns the list of data of the puzzle. */
+    /** Returns the list of cards*/
     public ArrayList<Card> getDataList() {
         return dataList;
     }
@@ -47,14 +45,14 @@ public class PuzzleData {
     }
 
 
-    /** Randomizes the order of the items by moving. */
-    public void random() {
-        int n = size * size * 100;
-        Random random = new Random();
-        for (int i = 0; i < n; i++) {
-            //move(random.nextInt(dataList.size()));
-        }
-    }
+//    /** Randomizes the order of the items by moving. */
+//    public void random() {
+//        int n = size * size * 100;
+//        Random random = new Random();
+//        for (int i = 0; i < n; i++) {
+//            //move(random.nextInt(dataList.size()));
+//        }
+//    }
 
 
     /** Resets the data list according to the size. */
@@ -62,7 +60,6 @@ public class PuzzleData {
         String selectedColor;
         String selectedInsect;
 
-        // Remove all element from dataList with clear() method
         dataList.clear();
         Random random = new Random();
 
@@ -81,6 +78,8 @@ public class PuzzleData {
         String selectedInsect=insect[random.nextInt(4)];
         currentCard=new Card(selectedColor, selectedInsect);
     }
+
+    //after click a card, generate a new card
     public Card genNewCard(){
         Random random = new Random();
         String selectedColor=color[random.nextInt(4)];

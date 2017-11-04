@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,120 +16,143 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class GameActivity extends Activity {
-    /** The initial size of the puzzle. */
-    private static final int INITIAL_SIZE = 3;          //ping
+    private static final int INITIAL_SIZE = 3;          //number of box
     /** The game has not been started, no move yet. */
     private static final long NOT_STARTED = 0;
 
-    /** The grid of items. */
+
     private GridView grid;
-    /** The adapter of the grid. */
-    private ArrayAdapter<PuzzleData.Card> adapter;
-    /** The puzzle data. */
-    private PuzzleData puzzleData = new PuzzleData();
-    /** Number of moves made. */
+    private TextView scoreTextView;
+    private ArrayAdapter<CardsData.Card> adapter;
+    private CardsData cardsData = new CardsData();
     private int numMoves;
     /** NOT_STARTED, or the starting time. */
     private long startTime;
     /** Game state: 2 states: Game-on or Game-over */
     private boolean gameComplete = false;
+    //thread handler
+    private Handler handler;
+    private int gameLeftTime;
+    private Timer timer = new Timer();
+    //the score
+    private int score=0;
 
-    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
         final TextView currentCard=(TextView) findViewById(R.id.currentCard);
+        final TextView timeLeft=(TextView) findViewById(R.id.timeLeft);
+        scoreTextView=(TextView) findViewById(R.id.score);
+
         grid = (GridView) findViewById(R.id.grid);
-        adapter = new ArrayAdapter<PuzzleData.Card>(this,
+        adapter = new ArrayAdapter<CardsData.Card>(this,
                 R.layout.item_view, R.id.item_view_text,
-                puzzleData.getDataList());
+                cardsData.getDataList());
         grid.setAdapter(adapter);
         grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                // Add code here
-                // Task 3: Item click handler
-
-                // Return if it is in GameComplete state
-                // Set current time to "startTime" if it is the first move
-                // Check if it is a valid move
-                // If it is a valid move, update grid display, increase the numMoves by 1, and check if the puzzle solve or not
-                // If puzzle is solved, call the "gameCompleted" method
                 if (gameComplete) // Game completed, no more move
                     return;
-
-                if (startTime == NOT_STARTED) // First move, keep time
-                    startTime = System.currentTimeMillis();
-                boolean matchCurrentCard = puzzleData.matchCardPattern((int) id);
+//                if (startTime == NOT_STARTED) // First move, keep time
+//                    startTime = System.currentTimeMillis();
+                boolean matchCurrentCard = cardsData.matchCardPattern((int) id);
                 if (matchCurrentCard) {
-                    adapter.notifyDataSetChanged(); // Update grid display
-                    currentCard.setText(puzzleData.currentCard.toString());
-                    numMoves++;
-//                    if (puzzleData.validOrder())
+                    adapter.notifyDataSetChanged();                         // Update grid display
+                    currentCard.setText(cardsData.currentCard.toString());
+                    score=score+100;
+                    scoreTextView.setText("score: "+score);
+//                  if (cardsData.validOrder())
 //                        gameCompleted();
                 }
             }
         });
 
+        //handler: do something in each second
+        handler = new Handler() {
+            public void handleMessage(Message msg) {
+                timeLeft.setText("time left： " + gameLeftTime);
+                gameLeftTime--;
+                // 时间小于0, 游戏失败
+                if (gameLeftTime < 0) {
+                    stopTimer();
+                    // 更改游戏的状态
+                    //isPlaying = false;
+                    // 失败后弹出对话框
+                    //lostDialog.show();
+                    new AlertDialog.Builder(GameActivity.this)
+                            .setTitle(R.string.congratulation)
+                            .setMessage("Time's up. Your score is xxx")
+                            .setNeutralButton(android.R.string.ok, null)
+                            .show();
+                    return;
+                }
+            }
+        };
+
+        //restart button
         Button startButton = (Button) findViewById(R.id.startbutton);
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
                 resetGame();
+                startTimer(100);
             }
         });
 
-
-        setPuzzleSize(INITIAL_SIZE);
-        puzzleData.genCurrentCard();
-        currentCard.setText(puzzleData.currentCard.toString());
+        setNumberOfCards(INITIAL_SIZE);       //gen 9 cards
+        cardsData.genCurrentCard();          //gen current card
+        currentCard.setText(cardsData.currentCard.toString());
+        startTimer(100);                      //start count down
     }
 
-
-    /** Sets the size of the puzzle and updates display. */
-    private void setPuzzleSize(int size) {
-        puzzleData.genCards(size);  // Set the size of the puzzle
-        adapter.notifyDataSetChanged();  // Update grid display
-        grid.setNumColumns(size);  // Set the number of columns of the grid
+    /** Sets the number of box and updates display. */
+    private void setNumberOfCards(int size) {
+        cardsData.genAllCards(size);          // Set the size of the puzzle
+        adapter.notifyDataSetChanged();     // Update grid display
+        grid.setNumColumns(size);           // Set the number of columns of the grid
     }
 
-    /** Resets the game and updates display. */
+    /** Restart the game and updates display. */
     private void resetGame() {
-        // Add code here
-        // Task 1: Reset the game
-
-        // Reset numMoves to 0
-        // Set gameComplete to false
-        // Set startTime to NOT_STARTED
-        // Randomize the puzzle by invoking the "random" method with the puzzleData object
-        // Update grid display by invoking the "notifyDataSetChanged" with the ArrayAdapter object
-        numMoves = 0;
+        TextView currentCard=(TextView) findViewById(R.id.currentCard);
         startTime = NOT_STARTED;
         gameComplete = false;
-        puzzleData.genCards(3);
-        puzzleData.genCurrentCard();
+        cardsData.genAllCards(INITIAL_SIZE);
+        cardsData.genCurrentCard();
+        currentCard.setText(cardsData.currentCard.toString());
         adapter.notifyDataSetChanged();
+        resetScore();
+    }
+
+    //reset score
+    private void resetScore() {
+        scoreTextView.setText("score: ");
+        score=0;
     }
 
     /** Acts on completion of game, showing statistics. */
-    private void gameCompleted() {
-        // Add code here
-        // Task 2: Displaying statistics after completion of game
-
-        // Obtain the current time and evaluating the total time used for solving the puzzle
-        // Change the game state to GameComplete by setting "gameComplete" to true
-        // Create and display an AlertDialog, the corresponding title and message can be find in the string resource file
-        double time = (System.currentTimeMillis() - startTime) / 1000.0;
-        gameComplete = true;
-        new AlertDialog.Builder(this)
-            .setTitle(R.string.congratulation)
-            .setMessage(getString(R.string.congratulation_msg, numMoves, time))
-            .setNeutralButton(android.R.string.ok, null)
-            .show();
-    }
+//    private void gameCompleted() {
+//        // Add code here
+//        // Task 2: Displaying statistics after completion of game
+//
+//        // Obtain the current time and evaluating the total time used for solving the puzzle
+//        // Change the game state to GameComplete by setting "gameComplete" to true
+//        // Create and display an AlertDialog, the corresponding title and message can be find in the string resource file
+//        double time = (System.currentTimeMillis() - startTime) / 1000.0;
+//        gameComplete = true;
+//        new AlertDialog.Builder(this)
+//            .setTitle(R.string.congratulation)
+//            .setMessage(getString(R.string.congratulation_msg, numMoves, time))
+//            .setNeutralButton(android.R.string.ok, null)
+//            .show();
+//    }
 
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
@@ -195,5 +220,30 @@ public class GameActivity extends Activity {
                 break;
         }
         return true;
+    }
+
+    //stopTimer
+    private void stopTimer(){
+        this.timer.cancel();
+        this.timer = null;
+    }
+
+    //start timer
+    private void startTimer(int gameTime) {
+        // 如果之前的timer还未取消，取消timer
+        if (this.timer != null) {
+            stopTimer();
+        }
+
+        //initial game time
+        this.gameLeftTime=gameTime;
+        //start countdown
+        this.timer = new Timer();
+        this.timer.schedule(new TimerTask() {
+            public void run() {
+                //send time to UI
+                handler.sendEmptyMessage(0x123);
+            }
+        }, 0, 1000);
     }
 }
