@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
@@ -18,6 +19,9 @@ import android.widget.TextView;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class GameActivity extends Activity {
     private static final int INITIAL_SIZE = 3;          //number of box
@@ -45,7 +49,7 @@ public class GameActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-
+        ButterKnife.bind(this);
         final TextView currentCard=(TextView) findViewById(R.id.currentCard);
         final TextView timeLeft=(TextView) findViewById(R.id.timeLeft);
         scoreTextView=(TextView) findViewById(R.id.score);
@@ -105,11 +109,32 @@ public class GameActivity extends Activity {
                 startTimer(100);
             }
         });
+        //count from start
+        new CountDownTimer(5000, 1000) {
+            TextView countdown = (TextView) findViewById(R.id.countdown);
+            public void onTick(long millisUntilFinished) {
+                long temp = (millisUntilFinished / 1000)-1;
+                if(temp>0)
+                    countdown.setText((millisUntilFinished / 1000) -1 +"");
+                else {
+                    countdown.setTextSize(100);
+                    countdown.setText("Start!!");
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                countdown.setVisibility(View.GONE);
+                startTimer(100);                      //start count down
+
+            }
+
+        }.start();
 
         setNumberOfCards(INITIAL_SIZE);       //gen 9 cards
         cardsData.genCurrentCard();          //gen current card
         currentCard.setText(cardsData.currentCard.toString());
-        startTimer(100);                      //start count down
+        //startTimer(100);                      //start count down
     }
 
     /** Sets the number of box and updates display. */

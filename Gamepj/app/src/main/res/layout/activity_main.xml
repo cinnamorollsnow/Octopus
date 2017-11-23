@@ -17,14 +17,19 @@
     <Button
         android:id="@+id/start"
         android:text="@string/start"
+        android:background="@color/colorButton"
+        android:textColor="@color/colorButtonWord"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:textSize="20sp"
         android:layout_centerInParent="true"
         android:layout_below="@+id/bg_image"/>
     <Button
+        android:layout_marginTop="20dp"
         android:id="@+id/about"
         android:text="@string/about"
+        android:background="@color/colorButton"
+        android:textColor="@color/colorButtonWord"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:textSize="20sp"
@@ -32,8 +37,11 @@
         android:layout_below="@+id/start"/>
 
     <Button
+        android:layout_marginTop="20dp"
         android:id="@+id/highScore"
         android:text="@string/highScore"
+        android:background="@color/colorButton"
+        android:textColor="@color/colorButtonWord"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:textSize="20sp"
@@ -41,8 +49,11 @@
         android:layout_below="@+id/about"/>
 
     <Button
+        android:layout_marginTop="20dp"
         android:id="@+id/exit"
         android:text="@string/exit"
+        android:background="@color/colorButton"
+        android:textColor="@color/colorButtonWord"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:textSize="20sp"
