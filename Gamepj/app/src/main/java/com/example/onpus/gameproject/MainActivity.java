@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.start:
-                Intent intent = new Intent(this, GameActivity.class);
+                Intent intent = new Intent(this, GameActivityWithImage.class);
                 startActivity(intent);
                 break;
             case R.id.about:

@@ -1,5 +1,7 @@
 package com.example.onpus.gameproject;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -35,6 +37,7 @@ public class CardsData {
     //match pattern
     public boolean matchCardPattern(int chosenCardId){
         Card chosenCard=dataList.get(chosenCardId);
+        Log.d("color",chosenCard.color);
         if (chosenCard.color.equals(currentCard.color)||chosenCard.insect.equals(currentCard.insect)) {
             currentCard = chosenCard;
             //gen new card
