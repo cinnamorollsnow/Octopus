@@ -3,7 +3,9 @@ package com.example.onpus.gameproject;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -40,6 +42,9 @@ public class GameActivityWithImage extends Activity {
     private Timer timer = new Timer();
     //the score
     private int score=0;
+
+    private SharedPreferences settings;
+    private static final String data = "DATA";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,9 +90,13 @@ public class GameActivityWithImage extends Activity {
                     //isPlaying = false;
                     // 失败后弹出对话框
                     //lostDialog.show();
+                    settings = getSharedPreferences(data,MODE_PRIVATE);
+                    int highScore = settings.getInt("high score", 0);
+                    if (score > highScore)
+                        settings.edit().putInt("high score",score).commit();
                     new AlertDialog.Builder(GameActivityWithImage.this)
                             .setTitle(R.string.congratulation)
-                            .setMessage("Time's up. Your score is xxx")
+                            .setMessage("Time's up. Your score is "+ score)
                             .setNeutralButton(android.R.string.ok, null)
                             .show();
                     return;
@@ -104,6 +113,27 @@ public class GameActivityWithImage extends Activity {
                 startTimer(100);
             }
         });
+        //count from start
+        new CountDownTimer(5000, 1000) {
+            TextView countdown = (TextView) findViewById(R.id.countdown);
+            public void onTick(long millisUntilFinished) {
+                long temp = (millisUntilFinished / 1000)-1;
+                if(temp>0)
+                    countdown.setText((millisUntilFinished / 1000) -1 +"");
+                else {
+                    countdown.setTextSize(100);
+                    countdown.setText("Start!!");
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                countdown.setVisibility(View.GONE);
+                startTimer(100);                      //start count down
+
+            }
+
+        }.start();
 
         setNumberOfCards(INITIAL_SIZE);       //gen 9 cards
         cardsData.genCurrentCard();          //gen current card

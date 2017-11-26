@@ -2,6 +2,7 @@ package com.example.onpus.gameproject;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -9,7 +10,8 @@ import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-
+    private SharedPreferences settings;
+    private static final String data = "DATA";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,14 +47,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }).show();
                 break;
             case R.id.highScore:
-                new AlertDialog.Builder(this)
-                        .setTitle("High Score")
-                        .setMessage("Your High Score is "+""+"!")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        }).show();
+                settings = getSharedPreferences(data,MODE_PRIVATE);
+                int highScore = settings.getInt("high score", 0);
+                if (highScore!=0)
+                    new AlertDialog.Builder(this)
+                            .setTitle("High Score")
+                            .setMessage("Your High Score is "+ highScore +".")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            }).show();
+                else
+                    new AlertDialog.Builder(this)
+                            .setTitle("High Score")
+                            .setMessage("No record found.")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            }).show();
                 break;
             case R.id.exit:
                 new AlertDialog.Builder(this)
