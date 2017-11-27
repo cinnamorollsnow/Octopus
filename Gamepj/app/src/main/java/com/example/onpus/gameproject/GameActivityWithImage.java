@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -11,11 +12,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -48,6 +53,8 @@ public class GameActivityWithImage extends Activity {
 
         final TextView currentCard=(TextView) findViewById(R.id.currentCard);
         final TextView timeLeft=(TextView) findViewById(R.id.timeLeft);
+        final Animation animationFadein = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+
         scoreTextView=(TextView) findViewById(R.id.score);
 
         grid = (GridView) findViewById(R.id.grid);
@@ -67,6 +74,8 @@ public class GameActivityWithImage extends Activity {
                     currentCard.setText(cardsData.currentCard.toString());
                     score=score+100;
                     scoreTextView.setText("score: "+score);
+
+                    v.startAnimation(animationFadein);
 //                  if (cardsData.validOrder())
 //                        gameCompleted();
                 }
@@ -105,10 +114,36 @@ public class GameActivityWithImage extends Activity {
             }
         });
 
+        //count from start
+        new CountDownTimer(5000, 1000) {
+            TextView countdown = (TextView) findViewById(R.id.countdown);
+            public void onTick(final long millisUntilFinished) {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        long temp = (millisUntilFinished / 1000)-1;
+                        if(temp>0)
+                            countdown.setText((millisUntilFinished / 1000) -1 +"");
+                        else {
+                            countdown.setTextSize(100);
+                            countdown.setText("Start!!");
+                        }
+                    }
+                });
+
+            }
+
+            @Override
+            public void onFinish() {
+                countdown.setVisibility(View.GONE);
+                startTimer(100);                      //start count down
+
+            }
+
+        }.start();
         setNumberOfCards(INITIAL_SIZE);       //gen 9 cards
         cardsData.genCurrentCard();          //gen current card
         currentCard.setText(cardsData.currentCard.toString());
-        startTimer(100);                      //start count down
+        //startTimer(100);                      //start count down
     }
 
     /** Sets the number of box and updates display. */
@@ -126,6 +161,7 @@ public class GameActivityWithImage extends Activity {
         cardsData.genAllCards(INITIAL_SIZE);
         cardsData.genCurrentCard();
         currentCard.setText(cardsData.currentCard.toString());
+        Arrays.fill(adapter.alreadyLoadedIndexes, Boolean.FALSE);
         adapter.notifyDataSetChanged();
         resetScore();
     }

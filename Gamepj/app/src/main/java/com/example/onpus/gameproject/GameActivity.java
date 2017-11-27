@@ -50,6 +50,7 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         ButterKnife.bind(this);
+        final TextView countdown = (TextView) findViewById(R.id.countdown);
         final TextView currentCard=(TextView) findViewById(R.id.currentCard);
         final TextView timeLeft=(TextView) findViewById(R.id.timeLeft);
         scoreTextView=(TextView) findViewById(R.id.score);
@@ -112,14 +113,19 @@ public class GameActivity extends Activity {
         //count from start
         new CountDownTimer(5000, 1000) {
             TextView countdown = (TextView) findViewById(R.id.countdown);
-            public void onTick(long millisUntilFinished) {
-                long temp = (millisUntilFinished / 1000)-1;
-                if(temp>0)
-                    countdown.setText((millisUntilFinished / 1000) -1 +"");
-                else {
-                    countdown.setTextSize(100);
-                    countdown.setText("Start!!");
-                }
+            public void onTick(final long millisUntilFinished) {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        long temp = (millisUntilFinished / 1000)-1;
+                        if(temp>0)
+                            countdown.setText((millisUntilFinished / 1000) -1 +"");
+                        else {
+                            countdown.setTextSize(100);
+                            countdown.setText("Start!!");
+                        }
+                    }
+                });
+
             }
 
             @Override
