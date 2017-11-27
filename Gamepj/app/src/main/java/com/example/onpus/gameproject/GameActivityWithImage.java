@@ -1,8 +1,11 @@
 package com.example.onpus.gameproject;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -11,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -46,10 +50,18 @@ public class GameActivityWithImage extends Activity {
     //the score
     private int score=0;
 
+    private SoundManager sound;
+    private static final int SOUND_DRAW_SIZE = 30;
+
+    private SharedPreferences settings;
+    private static final String data = "DATA";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+
+        sound = new SoundManager(this, true);
 
         final TextView currentCard=(TextView) findViewById(R.id.currentCard);
         final TextView timeLeft=(TextView) findViewById(R.id.timeLeft);
@@ -57,6 +69,10 @@ public class GameActivityWithImage extends Activity {
 
         scoreTextView=(TextView) findViewById(R.id.score);
 
+        Rect bounds = new Rect(scoreTextView.getWidth() / 2 - SOUND_DRAW_SIZE / 2, 0, scoreTextView.getWidth() / 2 + SOUND_DRAW_SIZE / 2, SOUND_DRAW_SIZE);
+        sound.setBounds(bounds);
+
+        sound.getDrawable();
         grid = (GridView) findViewById(R.id.grid);
         adapter=new ImageAdapter(this, cardsData.getDataList());
         grid.setAdapter(adapter);
@@ -65,6 +81,7 @@ public class GameActivityWithImage extends Activity {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 if (gameComplete) // Game completed, no more move
                     return;
+                sound.play(R.raw.cardsound);
 //                if (startTime == NOT_STARTED) // First move, keep time
 //                    startTime = System.currentTimeMillis();
                 Log.i("id", id+"");
@@ -90,13 +107,18 @@ public class GameActivityWithImage extends Activity {
                 // 时间小于0, 游戏失败
                 if (gameLeftTime < 0) {
                     stopTimer();
+                    sound.play(R.raw.win);
                     // 更改游戏的状态
                     //isPlaying = false;
                     // 失败后弹出对话框
                     //lostDialog.show();
+                    settings = getSharedPreferences(data,MODE_PRIVATE);
+                    int highScore = settings.getInt("high score", 0);
+                    if (score > highScore)
+                        settings.edit().putInt("high score",score).commit();
                     new AlertDialog.Builder(GameActivityWithImage.this)
                             .setTitle(R.string.congratulation)
-                            .setMessage("Time's up. Your score is xxx")
+                            .setMessage("Time's up. Your score is "+ score)
                             .setNeutralButton(android.R.string.ok, null)
                             .show();
                     return;
@@ -109,10 +131,32 @@ public class GameActivityWithImage extends Activity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
+                sound.play(R.raw.button);
                 resetGame();
                 startTimer(100);
             }
         });
+        //count from start
+        new CountDownTimer(5000, 1000) {
+            TextView countdown = (TextView) findViewById(R.id.countdown);
+            public void onTick(long millisUntilFinished) {
+                long temp = (millisUntilFinished / 1000)-1;
+                if(temp>0)
+                    countdown.setText((millisUntilFinished / 1000) -1 +"");
+                else {
+                    countdown.setTextSize(100);
+                    countdown.setText("Start!!");
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                countdown.setVisibility(View.GONE);
+                startTimer(100);                      //start count down
+
+            }
+
+        }.start();
 
         //count from start
         new CountDownTimer(5000, 1000) {
@@ -197,6 +241,7 @@ public class GameActivityWithImage extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        sound.play(R.raw.button);
         switch (item.getItemId()) {
             case R.id.menuAbout:
                 new android.support.v7.app.AlertDialog.Builder(this)
@@ -208,26 +253,11 @@ public class GameActivityWithImage extends Activity {
                             }
                         }).show();
                 break;
-            case R.id.restart:
-                new android.support.v7.app.AlertDialog.Builder(this)
-                        .setTitle("Restart")
-                        .setMessage("Are you sure to restart the game?")
-                        .setPositiveButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //code for restart the game
-                            }
-                        }).show();
-                break;
+
             case R.id.endGame:
                 android.support.v7.app.AlertDialog.Builder scoreAlert = new android.support.v7.app.AlertDialog.Builder(this);
                 scoreAlert.setTitle("Score")
-                        .setMessage("Your Score is"+ " Score")
+                        .setMessage("Your Score is "+ score)
                         .setPositiveButton("OK",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(
@@ -249,7 +279,10 @@ public class GameActivityWithImage extends Activity {
                         .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                scoreAlertDialog.show();
+                                if (score!=0 && gameLeftTime>0)
+                                    scoreAlertDialog.show();
+                                else
+                                    finish();
                             }
                         }).show();
                 break;

@@ -36,22 +36,6 @@ public class Game extends AppCompatActivity {
                             }
                         }).show();
                 break;
-            case R.id.restart:
-                new AlertDialog.Builder(this)
-                        .setTitle("Restart")
-                        .setMessage("Are you sure to restart the game?")
-                        .setPositiveButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //code for restart the game
-                            }
-                        }).show();
-                break;
             case R.id.endGame:
                 AlertDialog.Builder scoreAlert = new AlertDialog.Builder(this);
                 scoreAlert.setTitle("Score")
