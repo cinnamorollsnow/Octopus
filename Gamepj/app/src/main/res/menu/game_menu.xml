@@ -8,11 +8,6 @@
         />
 
     <item
-        android:id="@+id/restart"
-        android:title="@string/restart"
-        />
-
-    <item
         android:id="@+id/endGame"
         android:title="@string/end_the_game"
         />

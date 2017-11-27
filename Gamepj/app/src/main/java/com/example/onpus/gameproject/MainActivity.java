@@ -3,6 +3,7 @@ package com.example.onpus.gameproject;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -12,12 +13,19 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private SharedPreferences settings;
     private static final String data = "DATA";
+    private MediaPlayer bgmusic;
+    private SoundManager sound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        bgmusic = MediaPlayer.create(this, R.raw.bgmusic);
+        bgmusic.setLooping(true);
+        bgmusic.start();
+
+        sound = new SoundManager(this, true);
         Button start = (Button) findViewById(R.id.start);
         Button about = (Button) findViewById(R.id.about);
         Button highScore = (Button) findViewById(R.id.highScore);
@@ -30,7 +38,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
     public void onClick(View view) {
+        sound.play(R.raw.button);
         switch(view.getId()) {
             case R.id.start:
                 Intent intent = new Intent(this, GameActivityWithImage.class);
@@ -75,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                bgmusic.release();
                                 finish();
                             }
                         })

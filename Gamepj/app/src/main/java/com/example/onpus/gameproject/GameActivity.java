@@ -198,22 +198,7 @@ public class GameActivity extends Activity {
                             }
                         }).show();
                 break;
-            case R.id.restart:
-                new android.support.v7.app.AlertDialog.Builder(this)
-                        .setTitle("Restart")
-                        .setMessage("Are you sure to restart the game?")
-                        .setPositiveButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //code for restart the game
-                            }
-                        }).show();
-                break;
+
             case R.id.endGame:
                 android.support.v7.app.AlertDialog.Builder scoreAlert = new android.support.v7.app.AlertDialog.Builder(this);
                 scoreAlert.setTitle("Score")
