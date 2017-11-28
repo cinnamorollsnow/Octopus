@@ -7,6 +7,24 @@
     android:background="@mipmap/bg"
     tools:context="com.example.onpus.gameproject.MainActivity">
 
+    <RelativeLayout
+        android:id="@+id/sound"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        >
+        <ImageButton
+            android:id="@+id/musicBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sound">
+
     <ImageView
         android:id="@+id/bg_image"
         android:layout_width="wrap_content"
@@ -59,5 +77,5 @@
         android:textSize="20sp"
         android:layout_centerInParent="true"
         android:layout_below="@+id/highScore"/>
-
+    </RelativeLayout>
 </RelativeLayout>

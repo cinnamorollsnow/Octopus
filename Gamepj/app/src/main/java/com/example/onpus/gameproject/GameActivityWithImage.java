@@ -6,7 +6,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
+import android.media.AudioManager;
 import android.media.Image;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -23,6 +26,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,7 +34,10 @@ import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class GameActivityWithImage extends Activity {
+import static com.example.onpus.gameproject.MainActivity.bgmusic;
+import static com.example.onpus.gameproject.MainActivity.player;
+
+public class GameActivityWithImage extends Activity implements View.OnClickListener {
     private static final int INITIAL_SIZE = 3;          //number of box
     /** The game has not been started, no move yet. */
     private static final long NOT_STARTED = 0;
@@ -52,28 +59,28 @@ public class GameActivityWithImage extends Activity {
     //the score
     private int score=0;
 
-    private SoundManager sound;
-    private static final int SOUND_DRAW_SIZE = 30;
-
     private SharedPreferences settings;
     private static final String data = "DATA";
+
+    private ImageButton music;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        sound = new SoundManager(this, true);
-
         final ImageView currentCard=(ImageView) findViewById(R.id.currentCard);
         final TextView timeLeft=(TextView) findViewById(R.id.timeLeft);
 
         scoreTextView=(TextView) findViewById(R.id.score);
 
-        Rect bounds = new Rect(scoreTextView.getWidth() / 2 - SOUND_DRAW_SIZE / 2, 0, scoreTextView.getWidth() / 2 + SOUND_DRAW_SIZE / 2, SOUND_DRAW_SIZE);
-        sound.setBounds(bounds);
+        music = (ImageButton) findViewById(R.id.musicBtn);
+        if (bgmusic.isPlaying())
+            music.setBackgroundResource(R.drawable.ic_volume_up_black_24dp);
+        else
+            music.setBackgroundResource(R.drawable.ic_volume_mute_black_24dp);
+        music.setOnClickListener(this);
 
-        sound.getDrawable();
         grid = (GridView) findViewById(R.id.grid);
         adapter=new ImageAdapter(this, cardsData.getDataList());
         grid.setAdapter(adapter);
@@ -82,7 +89,11 @@ public class GameActivityWithImage extends Activity {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 if (gameComplete) // Game completed, no more move
                     return;
-                sound.play(R.raw.cardsound);
+                if (bgmusic.isPlaying()) {
+                    int resId = R.raw.cardsound;
+                    Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + resId);
+                    player.play(GameActivityWithImage.this, uri, false, AudioManager.STREAM_MUSIC);
+                }
 //                if (startTime == NOT_STARTED) // First move, keep time
 //                    startTime = System.currentTimeMillis();
                 Log.i("id", id+"");
@@ -113,7 +124,11 @@ public class GameActivityWithImage extends Activity {
                 // 时间小于0, 游戏失败
                 if (gameLeftTime < 0) {
                     stopTimer();
-                    sound.play(R.raw.win);
+                    if (bgmusic.isPlaying()) {
+                        int resId = R.raw.win;
+                        Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + resId);
+                        player.play(GameActivityWithImage.this, uri, false, AudioManager.STREAM_MUSIC);
+                    }
                     // 更改游戏的状态
                     //isPlaying = false;
                     // 失败后弹出对话框
@@ -137,7 +152,11 @@ public class GameActivityWithImage extends Activity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                sound.play(R.raw.button);
+                if (bgmusic.isPlaying()) {
+                    int resId = R.raw.button;
+                    Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + resId);
+                    player.play(GameActivityWithImage.this, uri, false, AudioManager.STREAM_MUSIC);
+                }
                 resetGame();
                 startTimer(100);
             }
@@ -253,7 +272,11 @@ public class GameActivityWithImage extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        sound.play(R.raw.button);
+        if (bgmusic.isPlaying()) {
+            int resId = R.raw.button;
+            Uri uri = Uri.parse("android.resource://" + this.getPackageName() + "/" + resId);
+            player.play(this, uri, false, AudioManager.STREAM_MUSIC);
+        }
         switch (item.getItemId()) {
             case R.id.menuAbout:
                 new android.support.v7.app.AlertDialog.Builder(this)
@@ -325,5 +348,20 @@ public class GameActivityWithImage extends Activity {
                 handler.sendEmptyMessage(0x123);
             }
         }, 0, 1000);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()) {
+            case R.id.musicBtn:
+                if (bgmusic.isPlaying()) {
+                    bgmusic.pause();
+                    findViewById(R.id.musicBtn).setBackgroundResource(R.drawable.ic_volume_mute_black_24dp);
+                } else {
+                    bgmusic.start();
+                    findViewById(R.id.musicBtn).setBackgroundResource(R.drawable.ic_volume_up_black_24dp);
+                }
+                break;
+        }
     }
 }
