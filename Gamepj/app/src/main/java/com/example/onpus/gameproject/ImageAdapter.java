@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
@@ -16,9 +18,11 @@ import java.util.ArrayList;
  */
 
 public class ImageAdapter extends BaseAdapter {
-    private Context context;
+    Context context;
     private ArrayList<CardsData.Card> dataList = new ArrayList<CardsData.Card>();
     boolean[] alreadyLoadedIndexes = new boolean[50];
+    int currentposit;
+    boolean clicked;
 
     public ImageAdapter(Context context, ArrayList<CardsData.Card> dataList) {
         this.context = context;
@@ -44,11 +48,17 @@ public class ImageAdapter extends BaseAdapter {
             AlphaAnimation alphaAnim = new AlphaAnimation(0.0f, 1.0f);
             alphaAnim.setDuration(500);
 
-        if (!alreadyLoadedIndexes[position])  {
+            Animation animationFadein = AnimationUtils.loadAnimation(context, R.anim.fade_out_card);
 
-            imageView.startAnimation(alphaAnim);
-            alreadyLoadedIndexes[position] = true;
-        }
+
+//        if (!alreadyLoadedIndexes[position])  {
+//            imageView.startAnimation(alphaAnim);
+//            alreadyLoadedIndexes[position] = true;
+//            } else
+        if (clicked&&position == currentposit) {
+                imageView.startAnimation(animationFadein);
+                clicked = false;
+             }
             CardsData.Card card = dataList.get(position);
             Log.d("9", card.color);
 

@@ -42,7 +42,7 @@
         android:text="@string/restart"
     />
 
-    <TextView
+    <ImageView
         android:id="@+id/currentCard"
         android:layout_width="100dp"
         android:layout_height="100dp"

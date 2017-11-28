@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -22,6 +23,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Arrays;
@@ -63,9 +65,8 @@ public class GameActivityWithImage extends Activity {
 
         sound = new SoundManager(this, true);
 
-        final TextView currentCard=(TextView) findViewById(R.id.currentCard);
+        final ImageView currentCard=(ImageView) findViewById(R.id.currentCard);
         final TextView timeLeft=(TextView) findViewById(R.id.timeLeft);
-        final Animation animationFadein = AnimationUtils.loadAnimation(this, R.anim.fade_in);
 
         scoreTextView=(TextView) findViewById(R.id.score);
 
@@ -87,12 +88,17 @@ public class GameActivityWithImage extends Activity {
                 Log.i("id", id+"");
                 boolean matchCurrentCard = cardsData.matchCardPattern((int) id);
                 if (matchCurrentCard) {
-                    adapter.notifyDataSetChanged();                         // Update grid display
-                    currentCard.setText(cardsData.currentCard.toString());
+                    adapter.currentposit = position;
+                    adapter.clicked = true;
+                    adapter.notifyDataSetChanged();
+                    // Update grid display
+                    currentCard.setImageResource(adapter.context.getResources().getIdentifier(cardsData.currentCard.color+"_"+cardsData.currentCard.insect,"drawable",adapter.context.getPackageName()));
+                    final Animation animationFadein = AnimationUtils.loadAnimation(adapter.context, R.anim.fade_in);
+                    currentCard.startAnimation(animationFadein);
+
+//                  currentCard.setText(cardsData.currentCard.toString());
                     score=score+100;
                     scoreTextView.setText("score: "+score);
-
-                    v.startAnimation(animationFadein);
 //                  if (cardsData.validOrder())
 //                        gameCompleted();
                 }
@@ -186,7 +192,10 @@ public class GameActivityWithImage extends Activity {
         }.start();
         setNumberOfCards(INITIAL_SIZE);       //gen 9 cards
         cardsData.genCurrentCard();          //gen current card
-        currentCard.setText(cardsData.currentCard.toString());
+        currentCard.setImageResource(adapter.context.getResources().getIdentifier(cardsData.currentCard.color+"_"+cardsData.currentCard.insect,"drawable",adapter.context.getPackageName()));
+        final Animation animationFadein = AnimationUtils.loadAnimation(adapter.context, R.anim.fade_in);
+        currentCard.startAnimation(animationFadein);
+
         //startTimer(100);                      //start count down
     }
 
@@ -199,12 +208,15 @@ public class GameActivityWithImage extends Activity {
 
     /** Restart the game and updates display. */
     private void resetGame() {
-        TextView currentCard=(TextView) findViewById(R.id.currentCard);
+        ImageView currentCard=(ImageView) findViewById(R.id.currentCard);
         startTime = NOT_STARTED;
         gameComplete = false;
         cardsData.genAllCards(INITIAL_SIZE);
         cardsData.genCurrentCard();
-        currentCard.setText(cardsData.currentCard.toString());
+        currentCard.setImageResource(adapter.context.getResources().getIdentifier(cardsData.currentCard.color+"_"+cardsData.currentCard.insect,"drawable",adapter.context.getPackageName()));
+        final Animation animationFadein = AnimationUtils.loadAnimation(adapter.context, R.anim.fade_in);
+        currentCard.startAnimation(animationFadein);
+//        currentCard.setText(cardsData.currentCard.toString());
         Arrays.fill(adapter.alreadyLoadedIndexes, Boolean.FALSE);
         adapter.notifyDataSetChanged();
         resetScore();
