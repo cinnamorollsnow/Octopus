@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
 
 public class GameActivityWithImage extends Activity {
     private static final int INITIAL_SIZE = 3;          //number of box
@@ -40,6 +42,8 @@ public class GameActivityWithImage extends Activity {
     private Timer timer = new Timer();
     //the score
     private int score=0;
+    private CountDownTimer countDownTimer1;
+    private CountDownTimer countDownTimer2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,22 +57,54 @@ public class GameActivityWithImage extends Activity {
         grid = (GridView) findViewById(R.id.grid);
         adapter=new ImageAdapter(this, cardsData.getDataList());
         grid.setAdapter(adapter);
+
         grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                final int theId=(int)id;
+
                 if (gameComplete) // Game completed, no more move
                     return;
 //                if (startTime == NOT_STARTED) // First move, keep time
 //                    startTime = System.currentTimeMillis();
                 Log.i("id", id+"");
-                boolean matchCurrentCard = cardsData.matchCardPattern((int) id);
-                if (matchCurrentCard) {
+                Log.d("click time",gameLeftTime+"");
+                boolean[] matchCurrentCard = cardsData.matchCardPattern((int) id, gameLeftTime);
+
+                if (matchCurrentCard[0]) {
                     adapter.notifyDataSetChanged();                         // Update grid display
                     currentCard.setText(cardsData.currentCard.toString());
                     score=score+100;
-                    scoreTextView.setText("score: "+score);
 //                  if (cardsData.validOrder())
 //                        gameCompleted();
+
+                    //is special time, start countdown
+                    if(matchCurrentCard[1]) {
+                        Log.d("special Item", "appears");
+                        cardsData.getDataList().get((int) id).countDownTimer=
+                                new CountDownTimer(10000, 1000) { // 5000 = 5 sec
+                                    public void onTick(long millisUntilFinished) {
+                                        cardsData.getDataList().get(theId).timeLeft=millisUntilFinished;
+                                    }
+
+                                    public void onFinish() {
+                                        cardsData.replaceSpecialItem((int) theId);
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                };
+                         cardsData.getDataList().get((int) id).countDownTimer.start();
+                    }
+
+                    //if click special item, add game left time 20s
+                    if(matchCurrentCard[2]) {
+                        score = score + 100;    //add 200 score
+                        //should add game time
+                        Log.d("clicked", " special");
+
+
+                    }
+                    scoreTextView.setText("score: "+score);
+                    Log.d("score: ",score+"");
                 }
             }
         });
@@ -85,11 +121,14 @@ public class GameActivityWithImage extends Activity {
                     //isPlaying = false;
                     // 失败后弹出对话框
                     //lostDialog.show();
+                    String scoreMessage="Time's up. Your score is "+score;
                     new AlertDialog.Builder(GameActivityWithImage.this)
                             .setTitle(R.string.congratulation)
-                            .setMessage("Time's up. Your score is xxx")
+                            .setMessage(scoreMessage)
                             .setNeutralButton(android.R.string.ok, null)
                             .show();
+//                    resetGame();
+//                    startTimer(100);
                     return;
                 }
             }
@@ -105,8 +144,31 @@ public class GameActivityWithImage extends Activity {
             }
         });
 
+        //pause button
+        Button pauseButton = (Button) findViewById(R.id.pausebutton);
+        pauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                stopTimer();
+                //pause special item countdown
+                pauseCounDownTimer();
+            }
+        });
+
+        //resume button
+        Button resumeButton = (Button) findViewById(R.id.resumebutton);
+        resumeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                startTimer(gameLeftTime);
+                //resume special item countdown
+                resumeCounDownTimer();
+            }
+        });
+
         setNumberOfCards(INITIAL_SIZE);       //gen 9 cards
         cardsData.genCurrentCard();          //gen current card
+//        cardsData.setSpecialTime(specialTime1, specialTime2);   //set special time
         currentCard.setText(cardsData.currentCard.toString());
         startTimer(100);                      //start count down
     }
@@ -125,6 +187,7 @@ public class GameActivityWithImage extends Activity {
         gameComplete = false;
         cardsData.genAllCards(INITIAL_SIZE);
         cardsData.genCurrentCard();
+        cardsData.resetSpecial();
         currentCard.setText(cardsData.currentCard.toString());
         adapter.notifyDataSetChanged();
         resetScore();
@@ -244,5 +307,37 @@ public class GameActivityWithImage extends Activity {
                 handler.sendEmptyMessage(0x123);
             }
         }, 0, 1000);
+    }
+
+    //resume countDown timer
+    private void resumeCounDownTimer() {
+        for (int i = 0; i < cardsData.getDataList().size(); i++) {
+            final int index = i;
+            final CardsData.Card theCard = cardsData.getDataList().get(i);
+
+            if (theCard.timeLeft != 0) {
+                theCard.countDownTimer = new CountDownTimer(theCard.timeLeft, 1000) {
+                    public void onTick(long millisUntilFinished) {
+                        theCard.timeLeft = millisUntilFinished;
+                    }
+
+                    public void onFinish() {
+                        cardsData.replaceSpecialItem(index);
+                        adapter.notifyDataSetChanged();
+                    }
+                };
+                theCard.countDownTimer.start();
+            }
+        }
+    }
+
+    //pause countDown timer
+    private void pauseCounDownTimer() {
+        for(CardsData.Card card: cardsData.getDataList()) {
+            if (card.countDownTimer!=null){
+                card.countDownTimer.cancel();
+                card.countDownTimer=null;
+            }
+        }
     }
 }

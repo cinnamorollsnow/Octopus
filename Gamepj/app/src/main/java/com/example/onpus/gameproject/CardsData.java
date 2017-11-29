@@ -1,5 +1,6 @@
 package com.example.onpus.gameproject;
 
+import android.os.CountDownTimer;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -16,7 +17,12 @@ public class CardsData {
     private final String[] insect = {"bee", "ladybird", "butterfly","spider"};
     //current card
     public Card currentCard;
-    
+    //special time
+    private int specialTime1;
+    private int specialTime2;
+    private Boolean specialTime1Done=false;
+    private Boolean specialTime2Done=false;
+
     /** Returns number of cards. */
     public int getSize() {
         return size;
@@ -26,6 +32,15 @@ public class CardsData {
     public void genAllCards(int size) {
         this.size = size;
         resetDataList();
+
+
+    }
+
+    //everytime restart, set special time
+    public void resetSpecial(){
+        setSpecialTime();
+        specialTime1Done=false;
+        specialTime2Done=false;
     }
 
     /** Returns the list of cards*/
@@ -35,16 +50,49 @@ public class CardsData {
 
 
     //match pattern
-    public boolean matchCardPattern(int chosenCardId){
+    public boolean[] matchCardPattern(int chosenCardId, int gameLeftTime){
+        boolean[] matchAndSpecial={false, false, false}; //match, isSpecialTime, clickSpecialItem
         Card chosenCard=dataList.get(chosenCardId);
-        Log.d("color",chosenCard.color);
+        Log.d("clickColor",chosenCard.color);
+
         if (chosenCard.color.equals(currentCard.color)||chosenCard.insect.equals(currentCard.insect)) {
             currentCard = chosenCard;
-            //gen new card
-            dataList.set(chosenCardId, genNewCard());
-            return true;
+            matchAndSpecial[0] = true;
+
+            if (chosenCard.countDownTimer != null){
+                chosenCard.countDownTimer.cancel();
+                chosenCard.countDownTimer = null;
+            }
+
+            //if click special item
+            if (chosenCard.insect.equals("special")){
+                matchAndSpecial[2]=true;
+            }
+
+            //if is special time, special item comes out
+            int currentLeftTime=gameLeftTime;
+            if (!specialTime1Done && currentLeftTime<=100) {
+                dataList.set(chosenCardId, genSpecialCard());
+                matchAndSpecial[1]=true;
+                specialTime1Done=true;
+            }else{
+                if (!specialTime2Done && currentLeftTime<=80) {
+                    dataList.set(chosenCardId, genSpecialCard());
+                    matchAndSpecial[1] = true;
+                    specialTime2Done = true;
+                } else {
+                    //gen simple new card
+                    dataList.set(chosenCardId, genGoodNewCard(chosenCardId));
+                }
+            }
+
         }
-        return false;
+        return matchAndSpecial;
+    }
+
+    //special item times up
+    public void replaceSpecialItem(int rabbitCardId){
+        dataList.set(rabbitCardId, genGoodNewCard(rabbitCardId));
     }
 
 
@@ -90,9 +138,62 @@ public class CardsData {
         return new Card(selectedColor, selectedInsect);
     }
 
+    //make the game able to continue
+    public Card genGoodNewCard(int chosenCardId) {
+        Boolean alreadyHasMatchCard=false;
+
+        Random random = new Random();
+        String selectedColor = color[random.nextInt(4)];
+        String selectedInsect = insect[random.nextInt(4)];
+
+        dataList.set(chosenCardId, null);
+        for (Card card : dataList) {
+            if (card != null) {
+                if (card.color.equals(currentCard.color) || card.insect.equals(currentCard.insect)) {
+                    alreadyHasMatchCard=true;
+                    Log.d("match", currentCard.color);
+                    break;
+                }
+
+            }
+
+        }
+
+        if(!alreadyHasMatchCard){
+            Log.d("not match", currentCard.color);
+            Random random1 = new Random();
+            if (random1.nextInt(2) == 0) {
+                selectedColor = currentCard.color;
+            } else {
+                selectedInsect= currentCard.insect;
+            }
+        }
+
+        return new Card(selectedColor, selectedInsect);
+    }
+
+    public Card genSpecialCard(){
+        Random random = new Random();
+        String selectedColor=color[random.nextInt(4)];
+        Log.d("special item",selectedColor+" special");
+        return new Card(selectedColor, "special");
+    }
+
+    //gen 2 random time for special item
+    public void setSpecialTime(){
+        Random random = new Random();
+        specialTime1=random.nextInt(50);
+        specialTime2=random.nextInt(50)+51;
+        Log.d("specialTime1 ", specialTime1+"");
+        Log.d("specialTime2 ", specialTime2+"");
+    }
+
+
     public class Card{
         public String color;
         public String insect;
+        public CountDownTimer countDownTimer;
+        public long timeLeft;
 
         public Card(String color, String insect){
             this.color=color;
