@@ -50,42 +50,48 @@ public class CardsData {
 
 
     //match pattern
-    public boolean[] matchCardPattern(int chosenCardId, int gameLeftTime){
-        boolean[] matchAndSpecial={false, false, false}; //match, isSpecialTime, clickSpecialItem
-        Card chosenCard=dataList.get(chosenCardId);
-        Log.d("clickColor",chosenCard.color);
+    public boolean[] matchCardPattern(int chosenCardId, int gameLeftTime) {
+        boolean[] matchAndSpecial = {false, false, false}; //match, isSpecialTime, clickSpecialItem
+        Card chosenCard = dataList.get(chosenCardId);
+        Log.d("clickColor", chosenCard.color);
 
-        if (chosenCard.color.equals(currentCard.color)||chosenCard.insect.equals(currentCard.insect)) {
+        if (chosenCard.color.equals(currentCard.color) || chosenCard.insect.equals(currentCard.insect)) {
             currentCard = chosenCard;
             matchAndSpecial[0] = true;
 
-            if (chosenCard.countDownTimer != null){
+            if (chosenCard.countDownTimer != null) {
                 chosenCard.countDownTimer.cancel();
                 chosenCard.countDownTimer = null;
             }
 
             //if click special item
-            if (chosenCard.insect.equals("special")){
-                matchAndSpecial[2]=true;
+            if (chosenCard.insect.equals("special")) {
+                matchAndSpecial[2] = true;
             }
 
-            //if is special time, special item comes out
-            int currentLeftTime=gameLeftTime;
-            if (!specialTime1Done && currentLeftTime<=100) {
+            //if is special time(80, 30), special item comes out
+            int currentLeftTime = gameLeftTime;
+
+            if (!specialTime1Done && currentLeftTime <= 80) {
                 dataList.set(chosenCardId, genSpecialCard());
-                matchAndSpecial[1]=true;
-                specialTime1Done=true;
-            }else{
-                if (!specialTime2Done && currentLeftTime<=80) {
+                matchAndSpecial[1] = true;
+                specialTime1Done = true;
+            } else {
+                if (!specialTime2Done && currentLeftTime <= 30) {
                     dataList.set(chosenCardId, genSpecialCard());
                     matchAndSpecial[1] = true;
                     specialTime2Done = true;
                 } else {
-                    //gen simple new card
-                    dataList.set(chosenCardId, genGoodNewCard(chosenCardId));
+                    //gen a new card
+                    dataList.set(chosenCardId, genNewCard());
                 }
             }
 
+            //change to a new card if necessary
+            Card newCard = genGoodCardIfNeed(chosenCardId);
+            if (newCard != null) {
+                dataList.set(chosenCardId, newCard);
+            }
         }
         return matchAndSpecial;
     }
@@ -142,11 +148,12 @@ public class CardsData {
     public Card genGoodNewCard(int chosenCardId) {
         Boolean alreadyHasMatchCard=false;
 
+        //if has match item in grid
         Random random = new Random();
         String selectedColor = color[random.nextInt(4)];
         String selectedInsect = insect[random.nextInt(4)];
 
-        dataList.set(chosenCardId, null);
+        dataList.set(chosenCardId, null);   //except the clicked one
         for (Card card : dataList) {
             if (card != null) {
                 if (card.color.equals(currentCard.color) || card.insect.equals(currentCard.insect)) {
@@ -170,6 +177,35 @@ public class CardsData {
         }
 
         return new Card(selectedColor, selectedInsect);
+    }
+
+    public Card genGoodCardIfNeed(int chosenCardId){
+        Boolean alreadyHasMatchCard=false;
+        String newColor=null;
+        String newInsect=null;
+
+        for (Card card : dataList) {
+            if (card != null) {
+                if (card.color.equals(currentCard.color) || card.insect.equals(currentCard.insect)) {
+                    alreadyHasMatchCard=true;
+                    Log.d("match", currentCard.color);
+                    return null;
+                }
+
+            }
+        }
+
+        if(!alreadyHasMatchCard){
+            Log.d("not match", currentCard.color);
+            Random random1 = new Random();
+            if (random1.nextInt(2) == 0) {
+                newColor = currentCard.color;
+            } else {
+                newInsect= currentCard.insect;
+            }
+        }
+
+        return new Card(newColor, newInsect);
     }
 
     public Card genSpecialCard(){

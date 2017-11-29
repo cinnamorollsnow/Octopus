@@ -1,14 +1,10 @@
 package com.example.onpus.gameproject;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.Rect;
 import android.media.AudioManager;
-import android.media.Image;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -18,9 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -33,9 +27,9 @@ import android.widget.TextView;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import static com.example.onpus.gameproject.MainActivity.bgmusic;
 import static com.example.onpus.gameproject.MainActivity.player;
-import static com.example.onpus.gameproject.R.id.currentCard;
 
 
 public class GameActivityWithImage extends Activity implements View.OnClickListener {
@@ -145,6 +139,9 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                     }
                     scoreTextView.setText("score: "+score);
                     Log.d("score: ",score+"");
+                }else{
+                    score = score - 100;
+                    scoreTextView.setText("score: "+score);
                 }
             }
         });
@@ -171,14 +168,17 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                     int highScore = settings.getInt("high score", 0);
                     if (score > highScore)
                         settings.edit().putInt("high score", score).commit();
-                    new AlertDialog.Builder(GameActivityWithImage.this)
-                            .setTitle(R.string.congratulation)
-                            .setMessage("Time's up. Your score is " + score)
-                            .setNeutralButton(android.R.string.ok, null)
-                            .show();
+
+                    if(!isFinishing()) {                //debug the exception
+                        new AlertDialog.Builder(GameActivityWithImage.this)
+                                .setTitle(R.string.congratulation)
+                                .setMessage("Time's up. Your score is " + score)
+                                .setNeutralButton(android.R.string.ok, null)
+                                .show();
 //                    resetGame();
 //                    startTimer(100);
-                    return;
+                        return;
+                    }
                 }
             }
         };
