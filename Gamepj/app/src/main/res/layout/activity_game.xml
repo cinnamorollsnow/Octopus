@@ -3,42 +3,99 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    >
+    android:background="@mipmap/bg"
 
+    >
     <TextView
-        android:id="@+id/timeLeft"
+        android:id="@+id/countdown"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="300dp"
+        android:text="3"
+        android:background="@color/colorButton"
+        android:textColor="@color/colorButtonWord"
+        android:visibility="visible"/>
+
+    <RelativeLayout
+        android:id="@+id/sound"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20dp"
         >
-    </TextView>
-    <TextView
-        android:id="@+id/score"
-        android:layout_width="wrap_content"
+        <ImageButton
+            android:id="@+id/musicBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:text="score: "
-        >
-    </TextView>
+        android:background="@color/colorButton"
+       >
+        <TextView
+            android:id="@+id/timeLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/colorButtonWord"
+            android:gravity="top|left"
+            />
+
+        <TextView
+            android:id="@+id/score"
+            android:layout_marginLeft="100dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="top|right"
+            android:textColor="@color/colorButtonWord"
+            android:textSize="20dp"
+            android:text="score: "
+            />
+    </LinearLayout>
+
     <GridView
         android:id="@+id/grid"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:horizontalSpacing="@dimen/grid_spacing"
         android:verticalSpacing="@dimen/grid_spacing" >
     </GridView>
-    
-    <Button
-        android:id="@+id/startbutton"
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/restart"
-    />
+        android:orientation="horizontal"
+        >
+        <Button
+            android:id="@+id/pausebutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="pause" />
+        <Button
+            android:id="@+id/resumebutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="resume" />
+        <Button
+            android:id="@+id/startbutton"
+            android:background="@color/colorButton"
+            android:textColor="@color/colorButtonWord"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/restart" />
+    </LinearLayout>
 
-    <TextView
+    <ImageView
         android:id="@+id/currentCard"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:layout_marginTop="20dp"
         android:layout_gravity="center"
         android:padding="@dimen/item_text_padding"
         android:textSize="22dp"

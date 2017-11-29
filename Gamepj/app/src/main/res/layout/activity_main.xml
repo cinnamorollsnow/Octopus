@@ -7,6 +7,24 @@
     android:background="@mipmap/bg"
     tools:context="com.example.onpus.gameproject.MainActivity">
 
+    <RelativeLayout
+        android:id="@+id/sound"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        >
+        <ImageButton
+            android:id="@+id/musicBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sound">
+
     <ImageView
         android:id="@+id/bg_image"
         android:layout_width="wrap_content"
@@ -17,14 +35,19 @@
     <Button
         android:id="@+id/start"
         android:text="@string/start"
+        android:background="@color/colorButton"
+        android:textColor="@color/colorButtonWord"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:textSize="20sp"
         android:layout_centerInParent="true"
         android:layout_below="@+id/bg_image"/>
     <Button
+        android:layout_marginTop="20dp"
         android:id="@+id/about"
         android:text="@string/about"
+        android:background="@color/colorButton"
+        android:textColor="@color/colorButtonWord"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:textSize="20sp"
@@ -32,8 +55,11 @@
         android:layout_below="@+id/start"/>
 
     <Button
+        android:layout_marginTop="20dp"
         android:id="@+id/highScore"
         android:text="@string/highScore"
+        android:background="@color/colorButton"
+        android:textColor="@color/colorButtonWord"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:textSize="20sp"
@@ -41,12 +67,15 @@
         android:layout_below="@+id/about"/>
 
     <Button
+        android:layout_marginTop="20dp"
         android:id="@+id/exit"
         android:text="@string/exit"
+        android:background="@color/colorButton"
+        android:textColor="@color/colorButtonWord"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:textSize="20sp"
         android:layout_centerInParent="true"
         android:layout_below="@+id/highScore"/>
-
+    </RelativeLayout>
 </RelativeLayout>

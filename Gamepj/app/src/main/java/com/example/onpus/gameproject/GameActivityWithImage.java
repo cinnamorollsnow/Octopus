@@ -1,8 +1,15 @@
 package com.example.onpus.gameproject;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.graphics.Rect;
+import android.media.AudioManager;
+import android.media.Image;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -11,17 +18,27 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
+import static com.example.onpus.gameproject.MainActivity.bgmusic;
+import static com.example.onpus.gameproject.MainActivity.player;
+import static com.example.onpus.gameproject.R.id.currentCard;
 
 
-public class GameActivityWithImage extends Activity {
+public class GameActivityWithImage extends Activity implements View.OnClickListener {
     private static final int INITIAL_SIZE = 3;          //number of box
     /** The game has not been started, no move yet. */
     private static final long NOT_STARTED = 0;
@@ -45,14 +62,27 @@ public class GameActivityWithImage extends Activity {
     private CountDownTimer countDownTimer1;
     private CountDownTimer countDownTimer2;
 
+    private SharedPreferences settings;
+    private static final String data = "DATA";
+
+    private ImageButton music;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        final TextView currentCard=(TextView) findViewById(R.id.currentCard);
+        final ImageView currentCard=(ImageView) findViewById(R.id.currentCard);
         final TextView timeLeft=(TextView) findViewById(R.id.timeLeft);
+
         scoreTextView=(TextView) findViewById(R.id.score);
+
+        music = (ImageButton) findViewById(R.id.musicBtn);
+        if (bgmusic.isPlaying())
+            music.setBackgroundResource(R.drawable.ic_volume_up_black_24dp);
+        else
+            music.setBackgroundResource(R.drawable.ic_volume_mute_black_24dp);
+        music.setOnClickListener(this);
 
         grid = (GridView) findViewById(R.id.grid);
         adapter=new ImageAdapter(this, cardsData.getDataList());
@@ -65,15 +95,25 @@ public class GameActivityWithImage extends Activity {
 
                 if (gameComplete) // Game completed, no more move
                     return;
+                if (bgmusic.isPlaying()) {
+                    int resId = R.raw.cardsound;
+                    Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + resId);
+                    player.play(GameActivityWithImage.this, uri, false, AudioManager.STREAM_MUSIC);
+                }
 //                if (startTime == NOT_STARTED) // First move, keep time
 //                    startTime = System.currentTimeMillis();
                 Log.i("id", id+"");
                 Log.d("click time",gameLeftTime+"");
+
                 boolean[] matchCurrentCard = cardsData.matchCardPattern((int) id, gameLeftTime);
 
                 if (matchCurrentCard[0]) {
+                    adapter.currentposit = position;
+                    adapter.clicked = true;
                     adapter.notifyDataSetChanged();                         // Update grid display
-                    currentCard.setText(cardsData.currentCard.toString());
+                    currentCard.setImageResource(adapter.context.getResources().getIdentifier(cardsData.currentCard.color + "_" + cardsData.currentCard.insect, "drawable", adapter.context.getPackageName()));
+                    final Animation animationFadein = AnimationUtils.loadAnimation(adapter.context, R.anim.fade_in);
+                    currentCard.startAnimation(animationFadein);
                     score=score+100;
 //                  if (cardsData.validOrder())
 //                        gameCompleted();
@@ -117,14 +157,23 @@ public class GameActivityWithImage extends Activity {
                 // 时间小于0, 游戏失败
                 if (gameLeftTime < 0) {
                     stopTimer();
+                    if (bgmusic.isPlaying()) {
+                        int resId = R.raw.win;
+                        Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + resId);
+                        player.play(GameActivityWithImage.this, uri, false, AudioManager.STREAM_MUSIC);
+                    }
                     // 更改游戏的状态
                     //isPlaying = false;
                     // 失败后弹出对话框
                     //lostDialog.show();
-                    String scoreMessage="Time's up. Your score is "+score;
+
+                    settings = getSharedPreferences(data, MODE_PRIVATE);
+                    int highScore = settings.getInt("high score", 0);
+                    if (score > highScore)
+                        settings.edit().putInt("high score", score).commit();
                     new AlertDialog.Builder(GameActivityWithImage.this)
                             .setTitle(R.string.congratulation)
-                            .setMessage(scoreMessage)
+                            .setMessage("Time's up. Your score is " + score)
                             .setNeutralButton(android.R.string.ok, null)
                             .show();
 //                    resetGame();
@@ -134,11 +183,63 @@ public class GameActivityWithImage extends Activity {
             }
         };
 
+        //count from start
+        new CountDownTimer(5000, 1000) {
+            TextView countdown = (TextView) findViewById(R.id.countdown);
+            public void onTick(long millisUntilFinished) {
+                long temp = (millisUntilFinished / 1000)-1;
+                if(temp>0)
+                    countdown.setText((millisUntilFinished / 1000) -1 +"");
+                else {
+                    countdown.setTextSize(100);
+                    countdown.setText("Start!!");
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                countdown.setVisibility(View.GONE);
+                startTimer(100);                      //start count down
+
+            }
+        }.start();
+
+        //count from start
+        new CountDownTimer(5000, 1000) {
+            TextView countdown = (TextView) findViewById(R.id.countdown);
+            public void onTick(final long millisUntilFinished) {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        long temp = (millisUntilFinished / 1000)-1;
+                        if(temp>0)
+                            countdown.setText((millisUntilFinished / 1000) -1 +"");
+                        else {
+                            countdown.setTextSize(100);
+                            countdown.setText("Start!!");
+                        }
+                    }
+                });
+
+            }
+
+            @Override
+            public void onFinish() {
+                countdown.setVisibility(View.GONE);
+                startTimer(100);                      //start count down
+
+            }
+        }.start();
+
         //restart button
         Button startButton = (Button) findViewById(R.id.startbutton);
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
+                if (bgmusic.isPlaying()) {
+                    int resId = R.raw.button;
+                    Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + resId);
+                    player.play(GameActivityWithImage.this, uri, false, AudioManager.STREAM_MUSIC);
+                }
                 resetGame();
                 startTimer(100);
             }
@@ -168,9 +269,12 @@ public class GameActivityWithImage extends Activity {
 
         setNumberOfCards(INITIAL_SIZE);       //gen 9 cards
         cardsData.genCurrentCard();          //gen current card
-//        cardsData.setSpecialTime(specialTime1, specialTime2);   //set special time
-        currentCard.setText(cardsData.currentCard.toString());
+//      cardsData.setSpecialTime(specialTime1, specialTime2);   //set special time
+        currentCard.setImageResource(adapter.context.getResources().getIdentifier(cardsData.currentCard.color+"_"+cardsData.currentCard.insect,"drawable",adapter.context.getPackageName()));
+        final Animation animationFadein = AnimationUtils.loadAnimation(adapter.context, R.anim.fade_in);
+        currentCard.startAnimation(animationFadein);
         startTimer(100);                      //start count down
+
     }
 
     /** Sets the number of box and updates display. */
@@ -182,13 +286,18 @@ public class GameActivityWithImage extends Activity {
 
     /** Restart the game and updates display. */
     private void resetGame() {
-        TextView currentCard=(TextView) findViewById(R.id.currentCard);
+        ImageView currentCard=(ImageView) findViewById(R.id.currentCard);
         startTime = NOT_STARTED;
         gameComplete = false;
         cardsData.genAllCards(INITIAL_SIZE);
         cardsData.genCurrentCard();
+
         cardsData.resetSpecial();
-        currentCard.setText(cardsData.currentCard.toString());
+        currentCard.setImageResource(adapter.context.getResources().getIdentifier(cardsData.currentCard.color+"_"+cardsData.currentCard.insect,"drawable",adapter.context.getPackageName()));
+        final Animation animationFadein = AnimationUtils.loadAnimation(adapter.context, R.anim.fade_in);
+        currentCard.startAnimation(animationFadein);
+
+        Arrays.fill(adapter.alreadyLoadedIndexes, Boolean.FALSE);
         adapter.notifyDataSetChanged();
         resetScore();
     }
@@ -224,6 +333,11 @@ public class GameActivityWithImage extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (bgmusic.isPlaying()) {
+            int resId = R.raw.button;
+            Uri uri = Uri.parse("android.resource://" + this.getPackageName() + "/" + resId);
+            player.play(this, uri, false, AudioManager.STREAM_MUSIC);
+        }
         switch (item.getItemId()) {
             case R.id.menuAbout:
                 new android.support.v7.app.AlertDialog.Builder(this)
@@ -235,26 +349,11 @@ public class GameActivityWithImage extends Activity {
                             }
                         }).show();
                 break;
-            case R.id.restart:
-                new android.support.v7.app.AlertDialog.Builder(this)
-                        .setTitle("Restart")
-                        .setMessage("Are you sure to restart the game?")
-                        .setPositiveButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //code for restart the game
-                            }
-                        }).show();
-                break;
+
             case R.id.endGame:
                 android.support.v7.app.AlertDialog.Builder scoreAlert = new android.support.v7.app.AlertDialog.Builder(this);
                 scoreAlert.setTitle("Score")
-                        .setMessage("Your Score is"+ " Score")
+                        .setMessage("Your Score is "+ score)
                         .setPositiveButton("OK",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(
@@ -276,7 +375,10 @@ public class GameActivityWithImage extends Activity {
                         .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                scoreAlertDialog.show();
+                                if (score!=0 && gameLeftTime>0)
+                                    scoreAlertDialog.show();
+                                else
+                                    finish();
                             }
                         }).show();
                 break;
@@ -333,11 +435,26 @@ public class GameActivityWithImage extends Activity {
 
     //pause countDown timer
     private void pauseCounDownTimer() {
-        for(CardsData.Card card: cardsData.getDataList()) {
-            if (card.countDownTimer!=null){
+        for (CardsData.Card card : cardsData.getDataList()) {
+            if (card.countDownTimer != null) {
                 card.countDownTimer.cancel();
-                card.countDownTimer=null;
+                card.countDownTimer = null;
             }
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()) {
+            case R.id.musicBtn:
+                if (bgmusic.isPlaying()) {
+                    bgmusic.pause();
+                    findViewById(R.id.musicBtn).setBackgroundResource(R.drawable.ic_volume_mute_black_24dp);
+                } else {
+                    bgmusic.start();
+                    findViewById(R.id.musicBtn).setBackgroundResource(R.drawable.ic_volume_up_black_24dp);
+                }
+                break;
         }
     }
 }
