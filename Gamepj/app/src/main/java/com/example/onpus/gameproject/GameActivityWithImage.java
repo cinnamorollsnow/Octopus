@@ -122,7 +122,7 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                                     }
 
                                     public void onFinish() {
-                                        cardsData.replaceSpecialItem((int) theId);
+                                        cardsData.replaceSpecialItem2((int) theId);
                                         adapter.notifyDataSetChanged();
                                     }
                                 };
@@ -424,7 +424,7 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                     }
 
                     public void onFinish() {
-                        cardsData.replaceSpecialItem(index);
+                        cardsData.replaceSpecialItem2(index);
                         adapter.notifyDataSetChanged();
                     }
                 };
