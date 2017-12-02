@@ -60,6 +60,7 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
     private static final String data = "DATA";
 
     private ImageButton music;
+    private TextView pauseTextView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,6 +78,9 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
         else
             music.setBackgroundResource(R.drawable.ic_volume_mute_black_24dp);
         music.setOnClickListener(this);
+
+        pauseTextView = (TextView) findViewById(R.id.pauseView);
+        pauseTextView.setVisibility(View.GONE);
 
         grid = (GridView) findViewById(R.id.grid);
         adapter=new ImageAdapter(this, cardsData.getDataList());
@@ -253,6 +257,7 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                 stopTimer();
                 //pause special item countdown
                 pauseCounDownTimer();
+                pauseTextView.setVisibility(View.VISIBLE);
             }
         });
 
@@ -261,6 +266,16 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
         resumeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
+                startTimer(gameLeftTime);
+                //resume special item countdown
+                resumeCounDownTimer();
+            }
+        });
+
+        pauseTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pauseTextView.setVisibility(View.GONE);
                 startTimer(gameLeftTime);
                 //resume special item countdown
                 resumeCounDownTimer();
