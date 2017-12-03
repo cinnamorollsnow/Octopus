@@ -60,8 +60,8 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
     private int score=0;
     private CountDownTimer countDownTimer1;
     private CountDownTimer countDownTimer2;
-    @BindView(R.id.pause)
-    TextView pauseView;
+//    @BindView(R.id.pause)
+//    TextView pauseView;
     @BindView(R.id.scoreeffect)
     TextView scoreView;
     private SharedPreferences settings;
@@ -279,8 +279,8 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                 stopTimer();
                 //pause special item countdown
                 //show pause view
-                pauseView.setVisibility(0);
-                pauseView.setAlpha(230);
+//                pauseView.setVisibility(0);
+//                pauseView.setAlpha(230);
                 pauseCounDownTimer();
             }
         });
@@ -309,15 +309,15 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
         startTimer(100);                      //start count down
 
     }
-    //resume the game
-    @OnClick(R.id.pause) void clickresume(){
-        startTimer(gameLeftTime);
-        //resume special item countdown
-        //show pause text view
-        pauseView.setAlpha(255);
-        pauseView.setVisibility(View.GONE);
-        resumeCounDownTimer();
-    }
+//    //resume the game
+//    @OnClick(R.id.pause) void clickresume(){
+//        startTimer(gameLeftTime);
+//        //resume special item countdown
+//        //show pause text view
+//        pauseView.setAlpha(255);
+//        pauseView.setVisibility(View.GONE);
+//        resumeCounDownTimer();
+//    }
 
     /** Sets the number of box and updates display. */
     private void setNumberOfCards(int size) {
