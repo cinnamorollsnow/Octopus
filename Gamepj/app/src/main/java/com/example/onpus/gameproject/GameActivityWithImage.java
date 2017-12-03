@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +28,10 @@ import android.widget.TextView;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 import static com.example.onpus.gameproject.MainActivity.bgmusic;
 import static com.example.onpus.gameproject.MainActivity.player;
@@ -55,7 +60,10 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
     private int score=0;
     private CountDownTimer countDownTimer1;
     private CountDownTimer countDownTimer2;
-
+    @BindView(R.id.pause)
+    TextView pauseView;
+    @BindView(R.id.scoreeffect)
+    TextView scoreView;
     private SharedPreferences settings;
     private static final String data = "DATA";
 
@@ -65,7 +73,8 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-
+        ButterKnife.bind(this);
+        final Animation scoreeffect = AnimationUtils.loadAnimation(this,R.anim.scoreeffect);
         final ImageView currentCard=(ImageView) findViewById(R.id.currentCard);
         final TextView timeLeft=(TextView) findViewById(R.id.timeLeft);
 
@@ -109,6 +118,11 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                     final Animation animationFadein = AnimationUtils.loadAnimation(adapter.context, R.anim.fade_in);
                     currentCard.startAnimation(animationFadein);
                     score=score+100;
+                    scoreView.setVisibility(0);
+                    scoreView.setBackgroundColor(Color.parseColor("#bf8040"));
+                    scoreView.setTextColor(Color.parseColor("#99ffcc"));
+                    scoreView.setText("+100");
+                    scoreView.startAnimation(scoreeffect);
 //                  if (cardsData.validOrder())
 //                        gameCompleted();
 
@@ -133,6 +147,11 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                     if(matchCurrentCard[2]) {
                         score = score + 100;    //add 200 score
                         //should add game time
+                        scoreView.setVisibility(0);
+                        scoreView.setText("+200");
+                        scoreView.setBackgroundColor(Color.parseColor("#FACC2E"));
+                        scoreView.setTextColor(Color.parseColor("#FFFFFF"));
+                        scoreView.startAnimation(scoreeffect);
                         Log.d("clicked", " special");
 
 
@@ -141,6 +160,14 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                     Log.d("score: ",score+"");
                 }else{
                     score = score - 100;
+                    scoreView.setVisibility(0);
+                    scoreView.setText("-100");
+                    scoreView.setBackgroundColor(Color.parseColor("#606060"));
+                    scoreView.setTextColor(Color.parseColor("#FFFFFF"));
+                    scoreView.startAnimation(scoreeffect);
+                    adapter.currentposit = position;
+                    adapter.isWrong = true;
+                    adapter.notifyDataSetChanged();                         // Update grid display
                     scoreTextView.setText("score: "+score);
                 }
             }
@@ -169,7 +196,6 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                     if (score > highScore)
                         settings.edit().putInt("high score", score).commit();
 
-                    if(!isFinishing()) {                //debug the exception
                         new AlertDialog.Builder(GameActivityWithImage.this)
                                 .setTitle(R.string.congratulation)
                                 .setMessage("Time's up. Your score is " + score)
@@ -180,7 +206,7 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                         return;
                     }
                 }
-            }
+
         };
 
         //count from start
@@ -252,9 +278,15 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
             public void onClick(View arg0) {
                 stopTimer();
                 //pause special item countdown
+                //show pause view
+                pauseView.setVisibility(0);
+                pauseView.setAlpha(230);
                 pauseCounDownTimer();
             }
         });
+
+
+
 
         //resume button
         Button resumeButton = (Button) findViewById(R.id.resumebutton);
@@ -263,6 +295,7 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
             public void onClick(View arg0) {
                 startTimer(gameLeftTime);
                 //resume special item countdown
+                //show pause text view
                 resumeCounDownTimer();
             }
         });
@@ -275,6 +308,15 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
         currentCard.startAnimation(animationFadein);
         startTimer(100);                      //start count down
 
+    }
+    //resume the game
+    @OnClick(R.id.pause) void clickresume(){
+        startTimer(gameLeftTime);
+        //resume special item countdown
+        //show pause text view
+        pauseView.setAlpha(255);
+        pauseView.setVisibility(View.GONE);
+        resumeCounDownTimer();
     }
 
     /** Sets the number of box and updates display. */

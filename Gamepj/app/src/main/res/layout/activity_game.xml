@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@mipmap/bg"
-
     >
     <TextView
         android:id="@+id/countdown"
@@ -16,6 +15,7 @@
         android:background="@color/colorButton"
         android:textColor="@color/colorButtonWord"
         android:visibility="gone"/>
+
 
     <RelativeLayout
         android:id="@+id/sound"
@@ -54,18 +54,51 @@
             />
     </RelativeLayout>
 
+    <TextView
+        android:id="@+id/pause"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="100dp"
+        android:text="PAUSE"
+        android:alpha="0.9"
+        android:background="@color/colorButton"
+        android:textColor="@color/colorButtonWord"
+        android:visibility="gone"/>
+<FrameLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+
     <GridView
         android:id="@+id/grid"
+        android:visibility="visible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="5dp"
         android:horizontalSpacing="@dimen/grid_spacing"
         android:verticalSpacing="@dimen/grid_spacing" >
+
+
     </GridView>
 
+    <TextView
+        android:id="@+id/scoreeffect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_marginLeft="215dp"
+        android:background="@drawable/oral"
+        android:padding="15dp"
+        android:text="+SCORE"
+        android:textColor="@color/colorButtonWord"
+        android:textSize="30dp"
+        android:visibility="gone" />
+
+    </FrameLayout>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         >
@@ -76,7 +109,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
-
+            android:width="170dp"
             android:text="pause" />
         <Button
             android:id="@+id/resumebutton"
@@ -85,6 +118,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
+            android:visibility="gone"
             android:text="resume" />
         <Button
             android:id="@+id/startbutton"
@@ -94,21 +128,32 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="15dp"
-            android:width="140dp"
+            android:width="190dp"
             android:text="@string/restart" />
+
+
     </LinearLayout>
 
+
+<FrameLayout
+    android:layout_gravity="center"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingBottom="10dp">
     <ImageView
         android:id="@+id/currentCard"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="20dp"
         android:layout_gravity="center"
         android:padding="@dimen/item_text_padding"
         android:textSize="22dp"
         android:background="@color/item_background"
-        android:gravity="center"
         android:text="current"
         android:textColor="@android:color/background_light" />
+
+
+</FrameLayout>
 
 </LinearLayout>
