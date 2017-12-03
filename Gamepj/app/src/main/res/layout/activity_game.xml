@@ -6,7 +6,7 @@
     android:background="@mipmap/bg"
     >
     <TextView
-        android:visibility="gone"
+        android:visibility="visible"
         android:id="@+id/countdown"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -68,23 +68,24 @@
         <!--android:visibility="gone"/>-->
 
     <TextView
-        android:id="@+id/pauseView"
+        android:id="@+id/pause"
         android:background="@color/colorButton"
         android:textColor="@color/colorButtonWord"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal|"
         android:text="RESUME"
+        android:visibility="gone"
         android:textAlignment="center"
         android:gravity="center"
+        android:alpha="0.9"
         android:textSize="22dp"
         android:clickable="true"
         android:focusable="true"/>
 
     <FrameLayout
         android:layout_width="fill_parent"
-        android:layout_height="380dp"
-        android:padding="5dp">
+        android:layout_height="380dp">
 
     <GridView
         android:id="@+id/grid"
@@ -92,7 +93,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="5dp"
         android:horizontalSpacing="@dimen/grid_spacing"
         android:verticalSpacing="@dimen/grid_spacing" >
 
@@ -114,7 +114,6 @@
         android:visibility="gone" />
 
     </FrameLayout>
-
 
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -155,11 +154,6 @@
     </LinearLayout>
 
 
-<FrameLayout
-    android:layout_gravity="center"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingBottom="10dp">
     <ImageView
         android:id="@+id/currentCard"
         android:layout_width="100dp"
@@ -173,7 +167,6 @@
         android:text="current"
         android:textColor="@android:color/background_light" />
 
-</FrameLayout>
 
 
 </LinearLayout>

@@ -60,8 +60,8 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
     private int score=0;
     private CountDownTimer countDownTimer1;
     private CountDownTimer countDownTimer2;
-//    @BindView(R.id.pause)
-//    TextView pauseView;
+    @BindView(R.id.pause)
+    TextView pauseView;
     @BindView(R.id.scoreeffect)
     TextView scoreView;
     private SharedPreferences settings;
@@ -231,30 +231,7 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
         }.start();
 
         //count from start
-        new CountDownTimer(5000, 1000) {
-            TextView countdown = (TextView) findViewById(R.id.countdown);
-            public void onTick(final long millisUntilFinished) {
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        long temp = (millisUntilFinished / 1000)-1;
-                        if(temp>0)
-                            countdown.setText((millisUntilFinished / 1000) -1 +"");
-                        else {
-                            countdown.setTextSize(100);
-                            countdown.setText("Start!!");
-                        }
-                    }
-                });
-
-            }
-
-            @Override
-            public void onFinish() {
-                countdown.setVisibility(View.GONE);
-                startTimer(100);                      //start count down
-
-            }
-        }.start();
+        startimercount();
 
         //restart button
         Button startButton = (Button) findViewById(R.id.startbutton);
@@ -279,8 +256,7 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                 stopTimer();
                 //pause special item countdown
                 //show pause view
-//                pauseView.setVisibility(0);
-//                pauseView.setAlpha(230);
+                pauseView.setVisibility(0);
                 pauseCounDownTimer();
             }
         });
@@ -309,16 +285,47 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
         startTimer(100);                      //start count down
 
     }
-//    //resume the game
-//    @OnClick(R.id.pause) void clickresume(){
-//        startTimer(gameLeftTime);
-//        //resume special item countdown
-//        //show pause text view
-//        pauseView.setAlpha(255);
-//        pauseView.setVisibility(View.GONE);
-//        resumeCounDownTimer();
-//    }
+    //resume the game
+    @OnClick(R.id.pause) void clickresume(){
+        startTimer(gameLeftTime);
+        //resume special item countdown
+        //show pause text view
+        pauseView.setAlpha(255);
+        pauseView.setVisibility(View.GONE);
+        resumeCounDownTimer();
+    }
 
+    // start counter
+    public void startimercount() {
+        new CountDownTimer(5000, 1000) {
+            TextView countdown = (TextView) findViewById(R.id.countdown);
+
+            public void onTick(final long millisUntilFinished) {
+                countdown.setVisibility(0);
+                countdown.setTextSize(300);
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        long temp = (millisUntilFinished / 1000) - 1;
+                        if (temp > 0)
+                            countdown.setText((millisUntilFinished / 1000) - 1 + "");
+                        else {
+                            countdown.setTextSize(100);
+                            countdown.setText("Start!!");
+                        }
+                    }
+                });
+
+            }
+
+
+            @Override
+            public void onFinish() {
+                countdown.setVisibility(View.GONE);
+                startTimer(100);                      //start count down
+
+            }
+        }.start();
+    }
     /** Sets the number of box and updates display. */
     private void setNumberOfCards(int size) {
         cardsData.genAllCards(size);          // Set the size of the puzzle
@@ -342,7 +349,12 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
         Arrays.fill(adapter.alreadyLoadedIndexes, Boolean.FALSE);
         adapter.notifyDataSetChanged();
         resetScore();
+
+        //count from start
+        startimercount();
+
     }
+
 
     //reset score
     private void resetScore() {
