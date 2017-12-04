@@ -376,8 +376,11 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
         switch (item.getItemId()) {
             case R.id.menuAbout:
                 new android.support.v7.app.AlertDialog.Builder(this)
-                        .setTitle("About")
-                        .setMessage("About content")
+                        .setTitle("About Insect World")
+                        .setMessage("How to play:\n" +
+                                "Select a card which has the same color or insect with your card(at the bottom).\n" +
+                                "You have 100 seconds to challenge yourself.\n" +
+                                "Don't miss the two special cards(sweep net) to gain double scores!")
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
