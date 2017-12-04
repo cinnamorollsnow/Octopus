@@ -96,11 +96,6 @@ public class CardsData {
         return matchAndSpecial;
     }
 
-//    //special item times up
-//    public void replaceSpecialItem(int rabbitCardId){
-//        dataList.set(rabbitCardId, genGoodNewCard(rabbitCardId));
-//    }
-
     //debug: special item times up
     public void replaceSpecialItem2(int rabbitCardId){
         //gen a new card
@@ -111,16 +106,6 @@ public class CardsData {
             dataList.set(rabbitCardId, newCard);
         }
     }
-
-//    /** Randomizes the order of the items by moving. */
-//    public void random() {
-//        int n = size * size * 100;
-//        Random random = new Random();
-//        for (int i = 0; i < n; i++) {
-//            //move(random.nextInt(dataList.size()));
-//        }
-//    }
-
 
     /** Resets the data list according to the size. */
     private void resetDataList() {
@@ -153,40 +138,6 @@ public class CardsData {
         String selectedInsect=insect[random.nextInt(4)];
         return new Card(selectedColor, selectedInsect);
     }
-
-    //make the game able to continue
-//    public Card genGoodNewCard(int chosenCardId) {
-//        Boolean alreadyHasMatchCard=false;
-//
-//        //if has match item in grid
-//        Random random = new Random();
-//        String selectedColor = color[random.nextInt(4)];
-//        String selectedInsect = insect[random.nextInt(4)];
-//
-//        dataList.set(chosenCardId, null);   //except the clicked one
-//        for (Card card : dataList) {
-//            if (card != null) {
-//                if (card.color.equals(currentCard.color) || card.insect.equals(currentCard.insect)) {
-//                    alreadyHasMatchCard=true;
-//                    Log.d("match", currentCard.color);
-//                    return new Card(selectedColor, selectedInsect);
-//                }
-//
-//            }
-//        }
-//
-//        if(!alreadyHasMatchCard){
-//            Log.d("not match", currentCard.color);
-//            Random random1 = new Random();
-//            if (random1.nextInt(2) == 0) {
-//                selectedColor = currentCard.color;
-//            } else {
-//                selectedInsect= currentCard.insect;
-//            }
-//        }
-//
-//        return new Card(selectedColor, selectedInsect);
-//    }
 
     public Card genGoodCardIfNeed(){
         Boolean alreadyHasMatchCard=false;
