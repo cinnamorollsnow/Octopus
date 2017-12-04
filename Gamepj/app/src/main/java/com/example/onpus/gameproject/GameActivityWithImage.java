@@ -103,8 +103,7 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                     Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + resId);
                     player.play(GameActivityWithImage.this, uri, false, AudioManager.STREAM_MUSIC);
                 }
-//                if (startTime == NOT_STARTED) // First move, keep time
-//                    startTime = System.currentTimeMillis();
+//
                 Log.i("id", id+"");
                 Log.d("click time",gameLeftTime+"");
 
@@ -123,14 +122,12 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                     scoreView.setTextColor(Color.parseColor("#99ffcc"));
                     scoreView.setText("+100");
                     scoreView.startAnimation(scoreeffect);
-//                  if (cardsData.validOrder())
-//                        gameCompleted();
-
-                    //is special time, start countdown
+//
+                    //if it is special time, start countdown
                     if(matchCurrentCard[1]) {
                         Log.d("special Item", "appears");
                         cardsData.getDataList().get((int) id).countDownTimer=
-                                new CountDownTimer(10000, 1000) { // 5000 = 5 sec
+                                new CountDownTimer(10000, 1000) {                       // 10000 = 10 sec
                                     public void onTick(long millisUntilFinished) {
                                         cardsData.getDataList().get(theId).timeLeft=millisUntilFinished;
                                     }
@@ -143,7 +140,7 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                          cardsData.getDataList().get((int) id).countDownTimer.start();
                     }
 
-                    //if click special item, add game left time 20s
+                    //if click special item, gain bonus
                     if(matchCurrentCard[2]) {
                         score = score + 100;    //add 200 score
                         //should add game time
@@ -186,10 +183,6 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                         Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + resId);
                         player.play(GameActivityWithImage.this, uri, false, AudioManager.STREAM_MUSIC);
                     }
-                    // 更改游戏的状态
-                    //isPlaying = false;
-                    // 失败后弹出对话框
-                    //lostDialog.show();
 
                     settings = getSharedPreferences(data, MODE_PRIVATE);
                     int highScore = settings.getInt("high score", 0);
@@ -199,10 +192,15 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                         new AlertDialog.Builder(GameActivityWithImage.this)
                                 .setTitle(R.string.congratulation)
                                 .setMessage("Time's up. Your score is " + score)
-                                .setNeutralButton(android.R.string.ok, null)
+                                //.setNeutralButton(android.R.string.ok, null)
+                                .setPositiveButton("OK",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(
+                                                    DialogInterface dialog, int id) {
+                                                finish();
+                                            }
+                                        })
                                 .show();
-//                    resetGame();
-//                    startTimer(100);
                         return;
                     }
                 }
@@ -361,23 +359,6 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
         scoreTextView.setText("score: ");
         score=0;
     }
-
-    /** Acts on completion of game, showing statistics. */
-//    private void gameCompleted() {
-//        // Add code here
-//        // Task 2: Displaying statistics after completion of game
-//
-//        // Obtain the current time and evaluating the total time used for solving the puzzle
-//        // Change the game state to GameComplete by setting "gameComplete" to true
-//        // Create and display an AlertDialog, the corresponding title and message can be find in the string resource file
-//        double time = (System.currentTimeMillis() - startTime) / 1000.0;
-//        gameComplete = true;
-//        new AlertDialog.Builder(this)
-//            .setTitle(R.string.congratulation)
-//            .setMessage(getString(R.string.congratulation_msg, numMoves, time))
-//            .setNeutralButton(android.R.string.ok, null)
-//            .show();
-//    }
 
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
