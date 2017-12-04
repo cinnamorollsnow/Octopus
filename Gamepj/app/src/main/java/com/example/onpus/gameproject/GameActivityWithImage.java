@@ -147,6 +147,11 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                     if(matchCurrentCard[2]) {
                         score = score + 100;    //add 200 score
                         //should add game time
+                        if (bgmusic.isPlaying()) {
+                            int resId = R.raw.special;
+                            Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + resId);
+                            player.play(GameActivityWithImage.this, uri, false, AudioManager.STREAM_MUSIC);
+                        }
                         scoreView.setVisibility(0);
                         scoreView.setText("+200");
                         scoreView.setBackgroundColor(Color.parseColor("#FACC2E"));
@@ -167,8 +172,13 @@ public class GameActivityWithImage extends Activity implements View.OnClickListe
                     scoreView.startAnimation(scoreeffect);
                     adapter.currentposit = position;
                     adapter.isWrong = true;
-                    adapter.notifyDataSetChanged();                         // Update grid display
+                    adapter.notifyDataSetChanged();
                     scoreTextView.setText("score: "+score);
+                    if (bgmusic.isPlaying()) {
+                        int resId = R.raw.error;
+                        Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + resId);
+                        player.play(GameActivityWithImage.this, uri, false, AudioManager.STREAM_MUSIC);
+                    }
                 }
             }
         });
